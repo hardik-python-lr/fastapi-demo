@@ -53,6 +53,7 @@ uvicorn main:app --reload
 
   - Create, Read, Update, Delete users using User modules APIs.
 
-- Product Modules
+- Task Modules
 
-  - Create, Read, Update, Delete users using Product modules APIs.
+  - Create, Read, Update, Delete Task using Task modules APIs.
+  - Maintain relationship between Task and User, so Each task assign to Specific user.
