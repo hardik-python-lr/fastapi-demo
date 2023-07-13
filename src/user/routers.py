@@ -14,7 +14,6 @@ from validators import validate_password
 from typing import List
 from src.user.services import get_user_by_id
 
-
 # Create the router using SQLAlchemyCRUDRouter from fastapi_crudrouter
 router = SQLAlchemyCRUDRouter(
     schema=UserBaseSchema,
@@ -63,6 +62,7 @@ def create_user(payload: UserCreatePayloadSchema, db: Session = Depends(get_db))
         Pydantic Schema: Return ProductResponseSchema object.
     """
     # validate password
+
     check_password = validate_password(
         password=payload.password, confirm_password=payload.confirm_password
     )
@@ -72,7 +72,7 @@ def create_user(payload: UserCreatePayloadSchema, db: Session = Depends(get_db))
             username=payload.username,
             email=payload.email,
             phn_no=payload.phn_no,
-            password=payload.password,
+            password=check_password,
         )
         # add user obj in database
         db.add(user)

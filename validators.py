@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from authentications import get_password_hash
 
 
 def validate_password(password: str, confirm_password: str):
@@ -7,4 +8,7 @@ def validate_password(password: str, confirm_password: str):
         raise HTTPException(
             status_code=400, detail="Password and Confirm password not matched"
         )
-    return password
+
+    # Encode plain text to cypher text
+    hash_password = get_password_hash(password=password)
+    return hash_password
