@@ -1,8 +1,8 @@
-"""First mirations 2
+"""First migration
 
-Revision ID: 26847325dc34
+Revision ID: 2f12f65694ac
 Revises: 
-Create Date: 2023-07-13 14:59:44.087979
+Create Date: 2023-07-13 18:54:14.874945
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '26847325dc34'
+revision = '2f12f65694ac'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -36,10 +36,10 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.String(), nullable=True),
     sa.Column('category', sa.String(), nullable=True),
-    sa.Column('asign_to', sa.Integer(), nullable=True),
+    sa.Column('assign_to', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['asign_to'], ['users.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['assign_to'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_tasks_id'), 'tasks', ['id'], unique=False)

@@ -29,96 +29,93 @@ router = SQLAlchemyCRUDRouter(
     delete_one_route=True,
     delete_all_route=True,
     tags=["Task"],
-    prefix="",
+    prefix="/tasks",
 )
 
 
-@router.get(
-    "/all-tasks", response_model=List[TaskResponseSchema]
-)  # response_model: how looks response
+@router.get("", response_model=List[TaskResponseSchema])
 def get_tasks(db: Session = Depends(get_db)):
     """Retrieve all tasks from the database.
 
-    Returns:
-        Pydantic Schema: return List of TaskResponseSchema object.
-    """
-
-    # Get all Task record query
-    tasks = db.query(Task).all()
-
-    # Itrate all tasks object and return based on respective response schema's object
-    lst_tasks = [TaskResponseSchema(**(vars(task))) for task in tasks]
-
-    return lst_tasks
-
-
-@router.post("/create-task", response_model=TaskResponseSchema)
-def create_task(payload: TaskCreatePayloadSchema, db: Session = Depends(get_db)):
-    """Create new task
-
     Args:
-        payload (TaskCreatePayloadSchema): Task details, which need for create task record.
         db (Session, optional): Database session object. Defaults to Depends(get_db).
 
     Returns:
-        Pydantic Schema: Return TaskResponseSchema object.
+        List of TaskResponseSchema: List of task objects.
     """
-    user = get_user_by_id(user_id=payload.asign_to, db=db)
-    print(user)
 
-    task = Task(
+    # Get all Task records from the database
+    all_tasks = db.query(Task).all()
+
+    # Iterate through all tasks and return them based on the response schema
+    return [TaskResponseSchema(**(vars(task))) for task in all_tasks]
+
+
+@router.post("", response_model=TaskResponseSchema)
+def create_task(payload: TaskCreatePayloadSchema, db: Session = Depends(get_db)):
+    """Create a new task.
+
+    Args:
+        payload (TaskCreatePayloadSchema): Task details needed to create a new task record.
+        db (Session, optional): Database session object. Defaults to Depends(get_db).
+
+    Returns:
+        TaskResponseSchema: Newly created task object.
+    """
+    user = get_user_by_id(user_id=payload.assign_to, db=db)
+
+    new_task = Task(
         title=payload.title,
         category=payload.category,
-        asign_to=user.id if user else None,
+        assign_to=user.id if user else None,
     )
-    # else:
-    #     task = Task(title=payload.title, category=payload.category)
 
-    # add task obj in database
-    db.add(task)
-    # commit changes
+    # Add the task object to the database
+    db.add(new_task)
+    # Commit the changes to the database
     db.commit()
 
-    # return task object based on respective schema
-    return TaskResponseSchema.from_orm(task)
+    # Return the task object based on the response schema
+    return TaskResponseSchema.from_orm(new_task)
 
 
-@router.patch("/update-task", response_model=TaskResponseSchema)
+@router.patch("/{task_id}", response_model=TaskResponseSchema)
 def update_task(
     task_id: int, payload: TaskUpdatePayloadSchema, db: Session = Depends(get_db)
 ):
-    """Update task object
+    """Update a task object.
 
     Args:
-        task_id (int): task_id which need to update.
-        payload (TaskUpdatePayloadSchema): Data which need to update.
+        task_id (int): ID of the task to update.
+        payload (TaskUpdatePayloadSchema): Data to update the task with.
         db (Session, optional): Database session object. Defaults to Depends(get_db).
 
     Returns:
-        Pydantic schema: return updated record object
+        TaskResponseSchema: Updated task object.
     """
-
-    # return task object, which id pass
+    print(payload.assign_to)
+    # Get the task object based on the provided task_id
     task = get_task_by_id(task_id=task_id, db=db)
-    user = get_user_by_id(user_id=payload.asign_to, db=db)
-    if task:
-        # convert into dict.
-        update_data = payload.dict(exclude_unset=True)
-        # ittrate dict items.
-        for field, value in update_data.items():
-            if value is not None:
-                # update fields in to task object
-                setattr(task, field, value)
+    user = get_user_by_id(user_id=payload.assign_to, db=db)
 
-        # add task obj in db
+    if task:
+        # Convert the payload to a dictionary and exclude unset values
+        update_data = payload.dict(exclude_unset=True)
+
+        # Iterate through the dictionary items
+        for field, value in update_data.items():
+            # Update the fields in the task object
+            setattr(task, field, value)
+
+        # Add the updated task object to the database
         db.add(task)
-        # change commits
+        # Commit the changes to the database
         db.commit()
-        # refresh and reflact change
+        # Refresh and reflect the changes
         db.refresh(task)
 
-        # return task obj
+        # Return the updated task object based on the response schema
         return TaskResponseSchema.from_orm(task)
 
-    # return error message
-    return MessageSchema(message=f"task_id: {task_id} not exist in database")
+    # Return an error message if the task_id doesn't exist in the database
+    return MessageSchema(message=f"task_id: {task_id} does not exist in the database")

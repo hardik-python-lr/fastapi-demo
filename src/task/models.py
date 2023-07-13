@@ -12,8 +12,8 @@ class Task(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     category = Column(String)
-    asign_to = Column(
-        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True, default=None
+    assign_to = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True
     )
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

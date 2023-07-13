@@ -10,7 +10,7 @@ class TaskBaseSchema(BaseModel):
 
     title: str
     category: str
-    asign_to: Union[int, None]
+    assign_to: Union[int, None]
 
     class Config:
         """
@@ -27,7 +27,7 @@ class TaskCreatePayloadSchema(TaskBaseSchema):
     Inherits from TaskBaseSchema.
     """
 
-    asign_to: Optional[int] = None
+    assign_to: Optional[int] = None
     pass
 
 
@@ -49,7 +49,7 @@ class TaskUpdatePayloadSchema(BaseModel):
 
     title: Optional[str] = None
     category: Optional[str] = None
-    asign_to: Optional[int] = None
+    assign_to: Optional[int] = None
 
 
 class MessageSchema(BaseModel):

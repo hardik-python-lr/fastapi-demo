@@ -28,11 +28,11 @@ router = SQLAlchemyCRUDRouter(
     delete_one_route=True,
     delete_all_route=False,
     tags=["User"],
-    prefix="",
+    prefix="/users",
 )
 
 
-@router.get("/all-users", response_model=List[UserResponseSchema])
+@router.get("", response_model=List[UserResponseSchema])
 def get_users(db: Session = Depends(get_db)):
     """Get all the users
 
@@ -40,86 +40,84 @@ def get_users(db: Session = Depends(get_db)):
         db (Session, optional): Database session object. Defaults to Depends(get_db).
 
     Returns:
-        Pydantic Schema's list: list of user objects
+        List of UserResponseSchema: List of user objects
     """
-    # Get all User record query
-    users = db.query(User).all()
+    # Get all User records from the database
+    all_users = db.query(User).all()
 
-    # Itrate all users object and return based on respective response schemas
-    lst_users = [UserResponseSchema(**(vars(user))) for user in users]
-
-    return lst_users
+    # Iterate through all users and return them based on the response schema
+    return [UserResponseSchema(**(vars(user))) for user in all_users]
 
 
-@router.post("/create-user", response_model=UserResponseSchema)
+@router.post("", response_model=UserResponseSchema)
 def create_user(payload: UserCreatePayloadSchema, db: Session = Depends(get_db)):
-    """Create new user
+    """Create a new user
 
     Args:
-        payload (UserCreatePayloadSchema): User details, which need for create product record.
+        payload (UserCreatePayloadSchema): User details needed to create a new user record.
         db (Session, optional): Database session object. Defaults to Depends(get_db).
 
     Returns:
-        Pydantic Schema: Return ProductResponseSchema object.
+        UserResponseSchema: Newly created user object
     """
-    # validate password
-
+    # Validate password
     check_password = validate_password(
         password=payload.password, confirm_password=payload.confirm_password
     )
-    print(check_password, type(check_password))
 
     if check_password:
-        user = User(
+        # Create a new User object with the provided details
+        new_user = User(
             username=payload.username,
             email=payload.email,
             phn_no=payload.phn_no,
             password=check_password,
         )
-        # add user obj in database
-        db.add(user)
-        # commit changes
+        # Add the user object to the database
+        db.add(new_user)
+        # Commit the changes to the database
         db.commit()
 
-        # return user obj based on respective schema
-        return UserResponseSchema.from_orm(user)
+        # Return the user object based on the response schema
+        return UserResponseSchema.from_orm(new_user)
 
 
-@router.patch("/update-user/{user_id}", response_model=UserResponseSchema)
+@router.patch("/{user_id}", response_model=UserResponseSchema)
 def update_user(
     user_id: int, payload: UserUpdatePayloadSchema, db: Session = Depends(get_db)
 ):
-    """Update user object
+    """Update a user object
 
     Args:
-        user_id (int): product_id which need to update.
-        payload (UserUpdatePayloadSchema):  Data which need to update.
+        user_id (int): ID of the user to update.
+        payload (UserUpdatePayloadSchema): Data to update the user with.
         db (Session, optional): Database session object. Defaults to Depends(get_db).
 
     Returns:
-        Pydantic schema: return updated record object
+        UserResponseSchema: Updated user object
     """
-    # return user object, which id pass
+    # Get the user object based on the provided user_id
     user = get_user_by_id(user_id=user_id, db=db)
 
     if user:
-        # convert into dict.
+        # Convert the payload to a dictionary and exclude unset values
         update_data = payload.dict(exclude_unset=True)
-        # ittrate dict items.
+
+        # Iterate through the dictionary items
         for field, value in update_data.items():
             if value is not None:
-                # update fields in to product object
+                # Update the fields in the user object
                 setattr(user, field, value)
 
-        # add user obj in dbF
+        # Add the updated user object to the database
         db.add(user)
-        # change commits
+        # Commit the changes to the database
         db.commit()
-        # refresh and reflact change
+        # Refresh and reflect the changes
         db.refresh(user)
 
-        # return user obj
+        # Return the updated user object based on the response schema
         return UserResponseSchema.from_orm(user)
 
-    # return error message
-    return MessageSchema(message=f"user_id: {user_id} not exist in database")
+    # Return an error message if the user_id doesn't exist in the database
+    return MessageSchema(message=f"user_id: {user_id} does not exist in the database")

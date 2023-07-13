@@ -5,6 +5,7 @@ from src.user.models import User
 from fastapi.exceptions import HTTPException
 from src.user.schemas import UserResponseSchema
 
+
 def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
     """Get user based on user id
 

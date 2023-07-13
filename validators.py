@@ -3,24 +3,24 @@ from authentications import get_password_hash
 
 
 def validate_password(password: str, confirm_password: str):
-    """Check password and confirm password matched or not.if matched then convert into hash password.
+    """Validate the password and confirm password.
 
     Args:
-        password (str): user passed password field value.
-        confirm_password (str): user passed confirm password field value.
-
-    Raises:
-        HTTPException: Raise HTTPException if password or confirm password not mached.
+        password (str): Password to validate.
+        confirm_password (str): Confirmation password to compare against.
 
     Returns:
-        str: Return hashed password.
+        str: Hashed password if validation passes.
+
+    Raises:
+        HTTPException: If the password and confirm password do not match.
     """
-    # Check password matching with confirm password
+    # Check if the password matches the confirm password
     if password != confirm_password:
         raise HTTPException(
-            status_code=400, detail="Password and Confirm password not matched"
+            status_code=400, detail="Password and Confirm password do not match"
         )
 
-    # Encode plain text to cypher text
-    hash_password = get_password_hash(password=password)
-    return hash_password
+    # Hash the password
+    hashed_password = get_password_hash(password=password)
+    return hashed_password

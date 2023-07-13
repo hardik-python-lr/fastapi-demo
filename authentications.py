@@ -1,30 +1,31 @@
 from passlib.context import CryptContext
 
+# Create a CryptContext object with bcrypt as the hashing scheme
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-# check password
 def verify_password(plain_password, hashed_password):
-    """Verifing plain and hashed password
+    """Verify if a plain password matches a hashed password.
 
     Args:
-        plain_password (str): user plain password, which is user use for create new user
-        hashed_password (str): cypher text, which is encoded plain password.
+        plain_password (str): Plain password to verify.
+        hashed_password (str): Hashed password to compare against.
 
     Returns:
-        bool: Return True, if password is correct or Return False if password is wrong.
+        bool: True if the plain password matches the hashed password, False otherwise.
     """
+    # Verify if the plain password matches the hashed password
     return pwd_context.verify(plain_password, hashed_password)
 
 
-# encode in to hash password
 def get_password_hash(password):
-    """Convert plain password into hash password.
+    """Encode a password into a hashed format.
 
     Args:
-        password (str): User plain password.
+        password (str): Password to hash.
 
     Returns:
-        str: Return hashed password.
+        str: Hashed password.
     """
+    # Hash the password using the CryptContext object
     return pwd_context.hash(password)
