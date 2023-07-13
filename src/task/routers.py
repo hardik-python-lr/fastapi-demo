@@ -29,11 +29,12 @@ router = SQLAlchemyCRUDRouter(
     delete_one_route=True,
     delete_all_route=True,
     tags=["Task"],
+    prefix="",
 )
 
 
 @router.get(
-    "/tasks", response_model=List[TaskResponseSchema]
+    "/all-tasks", response_model=List[TaskResponseSchema]
 )  # response_model: how looks response
 def get_tasks(db: Session = Depends(get_db)):
     """Retrieve all tasks from the database.
@@ -51,7 +52,7 @@ def get_tasks(db: Session = Depends(get_db)):
     return lst_tasks
 
 
-@router.post("/tasks", response_model=TaskResponseSchema)
+@router.post("/create-task", response_model=TaskResponseSchema)
 def create_task(payload: TaskCreatePayloadSchema, db: Session = Depends(get_db)):
     """Create new task
 
@@ -82,7 +83,7 @@ def create_task(payload: TaskCreatePayloadSchema, db: Session = Depends(get_db))
     return TaskResponseSchema.from_orm(task)
 
 
-@router.patch("/tasks", response_model=TaskResponseSchema)
+@router.patch("/update-task", response_model=TaskResponseSchema)
 def update_task(
     task_id: int, payload: TaskUpdatePayloadSchema, db: Session = Depends(get_db)
 ):

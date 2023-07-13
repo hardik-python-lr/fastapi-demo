@@ -28,10 +28,11 @@ router = SQLAlchemyCRUDRouter(
     delete_one_route=True,
     delete_all_route=False,
     tags=["User"],
+    prefix="",
 )
 
 
-@router.get("/users", response_model=List[UserResponseSchema])
+@router.get("/all-users", response_model=List[UserResponseSchema])
 def get_users(db: Session = Depends(get_db)):
     """Get all the users
 
@@ -50,7 +51,7 @@ def get_users(db: Session = Depends(get_db)):
     return lst_users
 
 
-@router.post("/users", response_model=UserResponseSchema)
+@router.post("/create-user", response_model=UserResponseSchema)
 def create_user(payload: UserCreatePayloadSchema, db: Session = Depends(get_db)):
     """Create new user
 
@@ -66,6 +67,7 @@ def create_user(payload: UserCreatePayloadSchema, db: Session = Depends(get_db))
     check_password = validate_password(
         password=payload.password, confirm_password=payload.confirm_password
     )
+    print(check_password, type(check_password))
 
     if check_password:
         user = User(
@@ -83,7 +85,7 @@ def create_user(payload: UserCreatePayloadSchema, db: Session = Depends(get_db))
         return UserResponseSchema.from_orm(user)
 
 
-@router.patch("/users", response_model=UserResponseSchema)
+@router.patch("/update-user/{user_id}", response_model=UserResponseSchema)
 def update_user(
     user_id: int, payload: UserUpdatePayloadSchema, db: Session = Depends(get_db)
 ):
