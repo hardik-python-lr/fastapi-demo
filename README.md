@@ -6,6 +6,15 @@ Sample Fastapi application
 
 This project is sample CRUD APIs of User and Product. In this project use alembic for migrations, also create seprate folder for seprate model.
 
+## Technologies
+
+- Python 3.8.10
+- Fastapi
+- Alembic
+- Sqlalchemy
+- Sqlite
+- Rest API
+
 ## Installation
 
 ```bash
@@ -37,3 +46,13 @@ alembic upgrade head
 ```bash
 uvicorn main:app --reload
 ```
+
+### Example Modules
+
+- User Module
+
+  - Create, Read, Update, Delete users using User modules APIs.
+
+- Product Modules
+
+  - Create, Read, Update, Delete users using Product modules APIs.
