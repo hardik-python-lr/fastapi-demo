@@ -1,6 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, validator, conint
 from datetime import datetime
 from typing import Optional, Union
+from src.task.models import TaskCategory
 
 
 class TaskBaseSchema(BaseModel):
@@ -20,6 +21,28 @@ class TaskBaseSchema(BaseModel):
         # Enable automatic conversion from attributes to dict during model initialization
         from_attributes = True
 
+    @validator("category")
+    def validate_category(cls, value):
+        """
+        Validator for the 'category' field of a task.
+
+        Ensures that the provided category value is valid by checking if it is one of the
+        values defined in the TaskCategory enum.
+
+        Args:
+            cls (Type[Task]): The class being validated.
+            value (Any): The value of the 'category' field being validated.
+
+        Returns:
+            Any: The validated category value.
+
+        Raises:
+            ValueError: If the provided category value is not a valid category.
+        """
+        if value not in TaskCategory.__members__.values():
+            raise ValueError("Invalid Category of Task.")
+        return value
+
 
 class TaskCreatePayloadSchema(TaskBaseSchema):
     """
@@ -27,7 +50,7 @@ class TaskCreatePayloadSchema(TaskBaseSchema):
     Inherits from TaskBaseSchema.
     """
 
-    assign_to: Optional[int] = None
+    assign_to: Optional[conint(ge=1)] = None
     pass
 
 
@@ -49,7 +72,7 @@ class TaskUpdatePayloadSchema(BaseModel):
 
     title: Optional[str] = None
     category: Optional[str] = None
-    assign_to: Optional[int] = None
+    assign_to: Optional[conint(ge=1)] = None
 
 
 class MessageSchema(BaseModel):

@@ -1,6 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from datetime import datetime
 from typing import Optional
+from email_validator import validate_email, EmailNotValidError
+import re
 
 
 class UserBaseSchema(BaseModel):
@@ -19,6 +21,62 @@ class UserBaseSchema(BaseModel):
 
         # Enable automatic conversion from attributes to dict during model initialization
         from_attributes = True
+
+    @validator("email")
+    def validate_email(cls, value):
+        """
+        Validator for the 'email' field of a user.
+
+        Validates that the provided email address is in a valid format.
+
+        Args:
+            cls (Type[User]): The class being validated.
+            value (Any): The value of the 'email' field being validated.
+
+        Returns:
+            str: The validated and normalized email address.
+
+        Raises:
+            ValueError: If the provided email address is not valid.
+        """
+
+        try:
+            emailinfo = validate_email(value)
+
+            # After this point, use only the normalized form of the email address,
+            email = emailinfo.normalized
+            return email
+        except EmailNotValidError as e:
+            raise ValueError("Not a valid email address.")
+
+    @validator("phn_no")
+    def validate_phn_no(cls, value):
+        """
+        Validator for the 'phn_no' field of a user.
+
+        Validates that the provided phone number is in a valid format.
+
+        Args:
+            cls (Type[User]): The class being validated.
+            value (Any): The value of the 'phn_no' field being validated.
+
+        Returns:
+            str: The validated phone number.
+
+        Raises:
+            ValueError: If the provided phone number is not valid.
+        """
+        phone_number = str(value)
+        if not isinstance(phone_number, str):
+            raise ValueError("Phone number must be a string")
+
+        pattern = r"^\+?\d{1,3}[-.\s]?\(?\d{1,3}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$"
+        # The regex pattern used for phone number validation
+
+        if re.match(pattern, phone_number):
+            return phone_number
+        else:
+            raise ValueError("Invalid phone number format")
 
 
 class UserCreatePayloadSchema(UserBaseSchema):

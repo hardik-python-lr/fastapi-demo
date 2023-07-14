@@ -1,6 +1,20 @@
 from database import Base
 from sqlalchemy import Column, Integer, DateTime, String, Boolean, ForeignKey
 from datetime import datetime
+from enum import Enum
+
+
+class TaskCategory(str, Enum):
+    """
+    Represents the category of a task.
+
+    Inherits from the `str` class and the `Enum` class.
+    """
+
+    ADMINISTRATIVE = "administrative"
+    CREATIVE = "creative"
+    RESEARCH = "research"
+    TECHNICAL = "technical"
 
 
 class Task(Base):
